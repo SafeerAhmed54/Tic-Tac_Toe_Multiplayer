@@ -24,9 +24,9 @@ public class GameVisualManager : NetworkBehaviour
     private void SpawnObjectRpc(int x , int y)
     {
         Debug.Log("SpawnObject");
-        Transform spawnedCircleTransform = Instantiate(circlePrefab);
+        Transform spawnedCircleTransform = Instantiate(circlePrefab , GetGridWorldPosition( x, y) , Quaternion.identity);
         spawnedCircleTransform.GetComponent<NetworkObject>().Spawn(true);
-        spawnedCircleTransform.position = GetGridWorldPosition(x, y);
+        //spawnedCircleTransform.position = GetGridWorldPosition(x, y);
     }
 
     private Vector2 GetGridWorldPosition(int x, int y)
