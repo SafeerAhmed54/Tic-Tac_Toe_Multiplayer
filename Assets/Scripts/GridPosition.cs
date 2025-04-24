@@ -14,6 +14,6 @@ public class GridPosition : MonoBehaviour
 
         //gameManager.OnBeforeTransformParentChanged(x, y);
 
-        GameManager.instance.OnBeforeTransformParentChanged(x, y);
+        GameManager.instance.OnBeforeTransformParentChangedRpc(x, y , GameManager.instance.GetLocalPlayerType());
     }
 }
