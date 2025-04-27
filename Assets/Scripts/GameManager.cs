@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using static GameManager;
 
 public class GameManager : NetworkBehaviour
 {
@@ -24,9 +25,10 @@ public class GameManager : NetworkBehaviour
     public class OnGameWinEventArgs : EventArgs
     {
         public Line line;
+        public PlayerType winPlayerType;
     }
     public event EventHandler OnCurrentPlayablePlayerTypeChange;
-
+    public event EventHandler OnRestart;
     public enum PlayerType
     {
         None,
@@ -266,16 +268,21 @@ public class GameManager : NetworkBehaviour
     }
     private void TestWinner()
     {
-        foreach(Line line in lineList)
+        for (int i = 0; i < lineList.Count; i++)
+        //foreach(Line line in lineList)
         {
+            Line line = lineList[i];
             if (TestWinnerLine(line))
             {
                 Debug.Log("Winner: " + playerTypeArray[line.centerGridPosition.x, line.centerGridPosition.y]);
                 currentPlayablePlayerType.Value = PlayerType.None;
                 OnGameWin?.Invoke(this, new OnGameWinEventArgs
                 {
-                    line = line
+                    line = line,
+                    winPlayerType = playerTypeArray[line.centerGridPosition.x, line.centerGridPosition.y]
+
                 });
+                TriggerOnGameWinRpc(i, playerTypeArray[line.centerGridPosition.x, line.centerGridPosition.y]);
                 break;
             }
         }
@@ -290,6 +297,17 @@ public class GameManager : NetworkBehaviour
         }*/
     }
 
+    [Rpc(SendTo.ClientsAndHost)]
+    private void TriggerOnGameWinRpc(int lineIndex, PlayerType winPlayerType)
+    {
+        Line line = lineList[lineIndex];
+        OnGameWin?.Invoke(this, new OnGameWinEventArgs
+        {
+            line = line,
+            winPlayerType = winPlayerType
+        });
+    }
+
     public PlayerType GetLocalPlayerType()
     {
         return localPlayerType;
@@ -298,6 +316,26 @@ public class GameManager : NetworkBehaviour
     public PlayerType GetCurrentPlayablePlayerType()
     {
         return currentPlayablePlayerType.Value;
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    public void RestartRpc()
+    {
+        for (int x = 0; x < playerTypeArray.GetLength(0); x++)
+        {
+            for (int y = 0; y < playerTypeArray.GetLength(1); y++)
+            {
+                playerTypeArray[x, y] = PlayerType.None;
+            }
+        }
+        currentPlayablePlayerType.Value = PlayerType.Cross;
+        TriggerOnRestartRpc();
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    private void TriggerOnRestartRpc()
+    {
+        OnRestart?.Invoke(this, EventArgs.Empty);
     }
 }
 

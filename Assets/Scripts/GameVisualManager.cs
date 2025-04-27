@@ -1,24 +1,52 @@
 using System;
 using Unity.Netcode;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class GameVisualManager : NetworkBehaviour
 {
+    private const float GRID_SIZE = 3.1f;
+
     [SerializeField] private Transform crossPrefab;
     [SerializeField] private Transform circlePrefab;
 
     [SerializeField] private Transform completeLinePrefeb;
 
-    private const float GRID_SIZE = 3.1f;
+    private List<GameObject> visualGameObjectList;
+
+    private void Awake()
+    {
+        visualGameObjectList = new List<GameObject>();
+    }
 
     private void Start()
     {
         GameManager.instance.OnClickedOnGridPosition += GameManager_OnClickedOnGridPosition;
         GameManager.instance.OnGameWin += GameManager_OnGameWin;
+        GameManager.instance.OnRestart += GameManager_OnRestart;
+    }
+
+    private void GameManager_OnRestart(object sender, EventArgs e)
+    {
+        if (!NetworkManager.Singleton.IsServer)
+        {
+            return;
+        }
+
+        foreach (GameObject visualGameObject in visualGameObjectList)
+        {
+            Destroy(visualGameObject);
+        }
+        visualGameObjectList.Clear();
     }
 
     private void GameManager_OnGameWin(object sender, GameManager.OnGameWinEventArgs e)
     {
+        if (!NetworkManager.Singleton.IsServer)
+        {
+            return;
+        }
+
         float eularZ = 0f;
         switch (e.line.orientation)
         {
@@ -40,9 +68,11 @@ public class GameVisualManager : NetworkBehaviour
                 eularZ = -45f;
                 break;
         }
-        Transform completeLineTransform = 
-        Instantiate(completeLinePrefeb, GetGridWorldPosition(e.line.centerGridPosition.x, e.line.centerGridPosition.y), Quaternion.Euler(0.0f,0.0f,eularZ));
+        Transform completeLineTransform =
+        Instantiate(completeLinePrefeb, GetGridWorldPosition(e.line.centerGridPosition.x, e.line.centerGridPosition.y), Quaternion.Euler(0.0f, 0.0f, eularZ));
         completeLineTransform.GetComponent<NetworkObject>().Spawn(true);
+
+        visualGameObjectList.Add(completeLineTransform.gameObject);
 
     }
 
@@ -53,11 +83,11 @@ public class GameVisualManager : NetworkBehaviour
     }
 
     [Rpc(SendTo.Server)]
-    private void SpawnObjectRpc(int x , int y , GameManager.PlayerType playerType)
+    private void SpawnObjectRpc(int x, int y, GameManager.PlayerType playerType)
     {
         Debug.Log("SpawnObject");
         Transform prefab;
-        switch(playerType)
+        switch (playerType)
         {
             default:
             case GameManager.PlayerType.Cross:
@@ -67,9 +97,11 @@ public class GameVisualManager : NetworkBehaviour
                 prefab = circlePrefab;
                 break;
         }
-        Transform spawnedCircleTransform = Instantiate(prefab, GetGridWorldPosition( x, y) , Quaternion.identity);
+        Transform spawnedCircleTransform = Instantiate(prefab, GetGridWorldPosition(x, y), Quaternion.identity);
         spawnedCircleTransform.GetComponent<NetworkObject>().Spawn(true);
         //spawnedCircleTransform.position = GetGridWorldPosition(x, y);
+
+        visualGameObjectList.Add(spawnedCircleTransform.gameObject);
     }
 
     private Vector2 GetGridWorldPosition(int x, int y)
