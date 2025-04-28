@@ -1257,6 +1257,7 @@ MonoBehaviour:
   resultText: {fileID: 439059244}
   winColor: {r: 0.08141923, g: 1, b: 0, a: 1}
   loseColor: {r: 1, g: 0, b: 0, a: 1}
+  tiedColor: {r: 0.5188679, g: 0.5188679, b: 0.5188679, a: 1}
   restartButton: {fileID: 537138973}
 --- !u!1 &619394800
 GameObject:

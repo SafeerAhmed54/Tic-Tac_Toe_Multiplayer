@@ -8,6 +8,7 @@ public class GameOverUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI resultText;
     [SerializeField] private Color winColor;
     [SerializeField] private Color loseColor;
+    [SerializeField] private Color tiedColor;
     [SerializeField] private Button restartButton;
 
     private void Awake()
@@ -22,7 +23,15 @@ public class GameOverUI : MonoBehaviour
     {
         GameManager.instance.OnGameWin += GameManager_OnGameWin;
         GameManager.instance.OnRestart += GameManager_OnRestart;
+        GameManager.instance.OnGameTied += GameManager_OnGameTied;
         Hide();
+    }
+
+    private void GameManager_OnGameTied(object sender, EventArgs e)
+    {
+        Show();
+        resultText.text = "Tied";
+        resultText.color = tiedColor;
     }
 
     private void GameManager_OnRestart(object sender, EventArgs e)
@@ -32,7 +41,10 @@ public class GameOverUI : MonoBehaviour
 
     private void GameManager_OnGameWin(object sender, GameManager.OnGameWinEventArgs e)
     {
-        if (e.winPlayerType == GameManager.instance.GetCurrentPlayablePlayerType())
+        Debug.Log("Current Player is : " + e.winPlayerType);
+        Debug.Log("Current Playable Player is : " + GameManager.instance.GetCurrentPlayablePlayerType());
+        Debug.Log("Boolean : " + (e.winPlayerType == GameManager.instance.GetCurrentPlayablePlayerType()));
+        if (e.winPlayerType == GameManager.instance.GetLocalPlayerType())
         {
             resultText.text = "You Win!";
             resultText.color = winColor;

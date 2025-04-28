@@ -29,6 +29,7 @@ public class GameManager : NetworkBehaviour
     }
     public event EventHandler OnCurrentPlayablePlayerTypeChange;
     public event EventHandler OnRestart;
+    public event EventHandler OnGameTied;
     public enum PlayerType
     {
         None,
@@ -184,10 +185,10 @@ public class GameManager : NetworkBehaviour
         {
             NetworkManager.Singleton.OnClientConnectedCallback += NetworkManager_OnClientConnectedCallback;
         }
-        else
-        {
-            currentPlayablePlayerType.Value = PlayerType.Circle;
-        }
+        //else
+        //{
+        //    currentPlayablePlayerType.Value = PlayerType.Circle;
+        //}
         currentPlayablePlayerType.OnValueChanged += (PlayerType oldPlayerType, PlayerType newPlayerType) =>
         {
             Debug.Log("Current Playable Player Type Changed: " + oldPlayerType + " -> " + newPlayerType);
@@ -276,15 +277,30 @@ public class GameManager : NetworkBehaviour
             {
                 Debug.Log("Winner: " + playerTypeArray[line.centerGridPosition.x, line.centerGridPosition.y]);
                 currentPlayablePlayerType.Value = PlayerType.None;
-                OnGameWin?.Invoke(this, new OnGameWinEventArgs
-                {
-                    line = line,
-                    winPlayerType = playerTypeArray[line.centerGridPosition.x, line.centerGridPosition.y]
-
-                });
                 TriggerOnGameWinRpc(i, playerTypeArray[line.centerGridPosition.x, line.centerGridPosition.y]);
-                break;
+                return;
             }
+        }
+
+        bool hasTie = true;
+        for (int x=0; x < playerTypeArray.GetLength(0); x++)
+        {
+            for (int y = 0; y < playerTypeArray.GetLength(1); y++)
+            {
+                if(playerTypeArray[x, y] == PlayerType.None)
+                {
+                    hasTie = false;
+                    break;
+                }
+            }
+        }
+
+        if (hasTie)
+        {
+            TirggerOnGameTiedRpc();
+            //Debug.Log("Tie");
+            //currentPlayablePlayerType.Value = PlayerType.None;
+            //TriggerOnGameWinRpc(-1, PlayerType.None);
         }
         /*if (TestWinnerLine(playerTypeArray[0, 0], playerTypeArray[1, 0], playerTypeArray[2, 0]))
         {
@@ -296,7 +312,11 @@ public class GameManager : NetworkBehaviour
             });
         }*/
     }
-
+    [Rpc(SendTo.ClientsAndHost)]
+    private void TirggerOnGameTiedRpc()
+    {
+        OnGameTied?.Invoke(this, EventArgs.Empty);
+    }
     [Rpc(SendTo.ClientsAndHost)]
     private void TriggerOnGameWinRpc(int lineIndex, PlayerType winPlayerType)
     {
@@ -318,7 +338,7 @@ public class GameManager : NetworkBehaviour
         return currentPlayablePlayerType.Value;
     }
 
-    [Rpc(SendTo.ClientsAndHost)]
+    [Rpc(SendTo.Server)]
     public void RestartRpc()
     {
         for (int x = 0; x < playerTypeArray.GetLength(0); x++)
