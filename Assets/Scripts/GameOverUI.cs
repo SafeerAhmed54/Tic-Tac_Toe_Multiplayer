@@ -6,6 +6,8 @@ using UnityEngine.UI;
 public class GameOverUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI resultText;
+    [SerializeField] private TextMeshProUGUI crossScoreText;
+    [SerializeField] private TextMeshProUGUI circleScoreText;
     [SerializeField] private Color winColor;
     [SerializeField] private Color loseColor;
     [SerializeField] private Color tiedColor;
