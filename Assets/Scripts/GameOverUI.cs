@@ -1,71 +1,56 @@
-using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GameOverUI : MonoBehaviour
-{
-    [SerializeField] private TextMeshProUGUI resultText;
-    [SerializeField] private TextMeshProUGUI crossScoreText;
-    [SerializeField] private TextMeshProUGUI circleScoreText;
+public class GameOverUI : MonoBehaviour {
+
+
+    [SerializeField] private TextMeshProUGUI resultTextMesh;
     [SerializeField] private Color winColor;
     [SerializeField] private Color loseColor;
-    [SerializeField] private Color tiedColor;
-    [SerializeField] private Button restartButton;
+    [SerializeField] private Color tieColor;
+    [SerializeField] private Button rematchButton;
 
-    private void Awake()
-    {
-        restartButton.onClick.AddListener(() =>
-        {
-            restartButton.enabled = false; 
-            GameManager.instance.RestartRpc();
+
+    private void Awake() {
+        rematchButton.onClick.AddListener(() => {
+            GameManager.Instance.RematchRpc();
         });
     }
-    private void Start()
-    {
-        GameManager.instance.OnGameWin += GameManager_OnGameWin;
-        GameManager.instance.OnRestart += GameManager_OnRestart;
-        GameManager.instance.OnGameTied += GameManager_OnGameTied;
+    private void Start() {
+        GameManager.Instance.OnGameWin += GameManager_OnGameWin;
+        GameManager.Instance.OnRematch += GameManager_OnRematch;
+        GameManager.Instance.OnGameTied += GameManager_OnGameTied;
+
         Hide();
     }
 
-    private void GameManager_OnGameTied(object sender, EventArgs e)
-    {
+    private void GameManager_OnGameTied(object sender, System.EventArgs e) {
+        resultTextMesh.text = "TIE!";
+        resultTextMesh.color = tieColor;
         Show();
-        resultText.text = "Tied";
-        resultText.color = tiedColor;
     }
 
-    private void GameManager_OnRestart(object sender, EventArgs e)
-    {
+    private void GameManager_OnRematch(object sender, System.EventArgs e) {
         Hide();
     }
 
-    private void GameManager_OnGameWin(object sender, GameManager.OnGameWinEventArgs e)
-    {
-        Debug.Log("Current Player is : " + e.winPlayerType);
-        Debug.Log("Current Playable Player is : " + GameManager.instance.GetCurrentPlayablePlayerType());
-        Debug.Log("Boolean : " + (e.winPlayerType == GameManager.instance.GetCurrentPlayablePlayerType()));
-        if (e.winPlayerType == GameManager.instance.GetLocalPlayerType())
-        {
-            resultText.text = "You Win!";
-            resultText.color = winColor;
-        }
-        else 
-        {
-            resultText.text = "You Lose";
-            resultText.color = loseColor;
+    private void GameManager_OnGameWin(object sender, GameManager.OnGameWinEventArgs e) {
+        if (e.winPlayerType == GameManager.Instance.GetLocalPlayerType()) {
+            resultTextMesh.text = "YOU WIN!";
+            resultTextMesh.color = winColor;
+        } else {
+            resultTextMesh.text = "YOU LOSE!";
+            resultTextMesh.color = loseColor;
         }
         Show();
     }
 
-    private void Show()
-    {
+    private void Show() {
         gameObject.SetActive(true);
     }
 
-    private void Hide()
-    {
+    private void Hide() {
         gameObject.SetActive(false);
     }
 }

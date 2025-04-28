@@ -1,9 +1,9 @@
-using System;
 using TMPro;
 using UnityEngine;
 
-public class PlayerUI : MonoBehaviour
-{
+public class PlayerUI : MonoBehaviour {
+
+
     [SerializeField] private GameObject crossArrowGameObject;
     [SerializeField] private GameObject circleArrowGameObject;
     [SerializeField] private GameObject crossYouTextGameObject;
@@ -11,8 +11,9 @@ public class PlayerUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI playerCrossScoreTextMesh;
     [SerializeField] private TextMeshProUGUI playerCircleScoreTextMesh;
 
-    private void Awake()
-    {
+
+
+    private void Awake() {
         crossArrowGameObject.SetActive(false);
         circleArrowGameObject.SetActive(false);
         crossYouTextGameObject.SetActive(false);
@@ -22,61 +23,43 @@ public class PlayerUI : MonoBehaviour
         playerCircleScoreTextMesh.text = "";
     }
 
-    private void Start()
-    {
-        GameManager.instance.OnGameStarted += GameManager_OnGameStarted;
-        GameManager.instance.OnCurrentPlayablePlayerTypeChange += GameManager_OnCurrentPlayablePlayerTypeChange;
-        //GameManager.instance.OnGameWin += GameManager_OnPlayerScoreChange;
-        GameManager.instance.OnScoreChanged += GameManager_OnPlayerScoreChange;
+    private void Start() {
+        GameManager.Instance.OnGameStarted += GameManager_OnGameStarted;
+        GameManager.Instance.OnCurrentPlayablePlayerTypeChanged += GameManager_OnCurrentPlayablePlayerTypeChanged;
+        GameManager.Instance.OnScoreChanged += GameManager_OnScoreChanged;
     }
 
-    private void GameManager_OnPlayerScoreChange(object sender, EventArgs e)
-    {
-        GameManager.instance.GetScores(out int playerCrossScore, out int playerCircleScore);
+    private void GameManager_OnScoreChanged(object sender, System.EventArgs e) {
+        GameManager.Instance.GetScores(out int playerCrossScore, out int playerCircleScore);
+
         playerCrossScoreTextMesh.text = playerCrossScore.ToString();
         playerCircleScoreTextMesh.text = playerCircleScore.ToString();
     }
 
-    //private void GameManager_OnPlayerScoreChange(object sender, GameManager.OnGameWinEventArgs e)
-    //{
-    //    GameManager.instance.GetScores(out int playerCrossScore, out int playerCircleScore);
-    //    playerCrossScoreTextMesh.text = playerCrossScore.ToString();
-    //    playerCircleScoreTextMesh.text = playerCircleScore.ToString();
-    //}
-
-    private void GameManager_OnCurrentPlayablePlayerTypeChange(object sender, EventArgs e)
-    {
+    private void GameManager_OnCurrentPlayablePlayerTypeChanged(object sender, System.EventArgs e) {
         UpdateCurrentArrow();
     }
 
-    private void GameManager_OnGameStarted(object sender, EventArgs e)
-    {
-        if(GameManager.instance.GetLocalPlayerType() == GameManager.PlayerType.Cross)
-        {
+    private void GameManager_OnGameStarted(object sender, System.EventArgs e) {
+        if (GameManager.Instance.GetLocalPlayerType() == GameManager.PlayerType.Cross) {
             crossYouTextGameObject.SetActive(true);
-        }
-        else
-        {
+        } else {
             circleYouTextGameObject.SetActive(true);
         }
-
         playerCrossScoreTextMesh.text = "0";
         playerCircleScoreTextMesh.text = "0";
 
         UpdateCurrentArrow();
     }
 
-    private void UpdateCurrentArrow()
-    {
-        if(GameManager.instance.GetCurrentPlayablePlayerType() == GameManager.PlayerType.Cross)
-        {
+    private void UpdateCurrentArrow() {
+        if (GameManager.Instance.GetCurrentPlayablePlayerType() == GameManager.PlayerType.Cross) {
             crossArrowGameObject.SetActive(true);
             circleArrowGameObject.SetActive(false);
-        }
-        else
-        {
+        } else {
             crossArrowGameObject.SetActive(false);
             circleArrowGameObject.SetActive(true);
         }
     }
+
 }

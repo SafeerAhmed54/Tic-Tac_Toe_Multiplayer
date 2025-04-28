@@ -2,29 +2,27 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class NetworkManagerUI : MonoBehaviour
-{
+public class NetworkManagerUI : MonoBehaviour {
+
+
+
     [SerializeField] private Button startHostButton;
     [SerializeField] private Button startClientButton;
-    
 
-    private void Awake()
-    {
-        startHostButton.onClick.AddListener(() =>
-        {
+
+    private void Awake() {
+        startHostButton.onClick.AddListener(() => {
             NetworkManager.Singleton.StartHost();
-            HidePanel();
+            Hide();
         });
-
-        startClientButton.onClick.AddListener(() =>
-        {
+        startClientButton.onClick.AddListener(() => {
             NetworkManager.Singleton.StartClient();
-            HidePanel();
+            Hide();
         });
     }
 
-    void HidePanel()
-    {
+    private void Hide() {
         gameObject.SetActive(false);
     }
+
 }

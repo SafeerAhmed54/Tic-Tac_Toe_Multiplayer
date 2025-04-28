@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4090046938615535597}
   - component: {fileID: 7628006837922301306}
   - component: {fileID: 8129015198362977416}
-  - component: {fileID: -3708212762845052007}
+  - component: {fileID: 5733864693425175928}
   m_Layer: 0
   m_Name: GridPosition
   m_TagString: Untagged
@@ -135,7 +135,7 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &-3708212762845052007
+--- !u!114 &5733864693425175928
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -144,6 +144,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 3116803889361359100}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 34c8118619093c6428132a0f216b2b85, type: 3}
+  m_Script: {fileID: 11500000, guid: 1493f96bdfb7aa9428bd774eca30ab07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  x: 0
+  y: 0

@@ -1,94 +1,76 @@
-using System;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-using System.Collections.Generic;
 
-public class GameVisualManager : NetworkBehaviour
-{
+public class GameVisualManager : NetworkBehaviour {
+
+
     private const float GRID_SIZE = 3.1f;
+
 
     [SerializeField] private Transform crossPrefab;
     [SerializeField] private Transform circlePrefab;
+    [SerializeField] private Transform lineCompletePrefab;
 
-    [SerializeField] private Transform completeLinePrefeb;
 
     private List<GameObject> visualGameObjectList;
 
-    private void Awake()
-    {
+
+    private void Awake() {
         visualGameObjectList = new List<GameObject>();
     }
 
-    private void Start()
-    {
-        GameManager.instance.OnClickedOnGridPosition += GameManager_OnClickedOnGridPosition;
-        GameManager.instance.OnGameWin += GameManager_OnGameWin;
-        GameManager.instance.OnRestart += GameManager_OnRestart;
+    private void Start() {
+        GameManager.Instance.OnClickedOnGridPosition += GameManager_OnClickedOnGridPosition;
+        GameManager.Instance.OnGameWin += GameManager_OnGameWin;
+        GameManager.Instance.OnRematch += GameManager_OnRematch;
     }
 
-    private void GameManager_OnRestart(object sender, EventArgs e)
-    {
-        if (!NetworkManager.Singleton.IsServer)
-        {
+    private void GameManager_OnRematch(object sender, System.EventArgs e) {
+        if (!NetworkManager.Singleton.IsServer) {
             return;
         }
 
-        foreach (GameObject visualGameObject in visualGameObjectList)
-        {
+        foreach (GameObject visualGameObject in visualGameObjectList) {
             Destroy(visualGameObject);
         }
         visualGameObjectList.Clear();
     }
 
-    private void GameManager_OnGameWin(object sender, GameManager.OnGameWinEventArgs e)
-    {
-        if (!NetworkManager.Singleton.IsServer)
-        {
+    private void GameManager_OnGameWin(object sender, GameManager.OnGameWinEventArgs e) {
+        if (!NetworkManager.Singleton.IsServer) {
             return;
         }
 
-        float eularZ = 0f;
-        switch (e.line.orientation)
-        {
+        float eulerZ = 0f;
+        switch (e.line.orientation) {
             default:
-            case GameManager.Orientation.Horizontal:
-                Debug.Log("Horizontal");
-                eularZ = 0f;
-                break;
-            case GameManager.Orientation.Vertical:
-                Debug.Log("Vertical");
-                eularZ = 90f;
-                break;
-            case GameManager.Orientation.DiagonalA:
-                Debug.Log("DiagonalA");
-                eularZ = 45f;
-                break;
-            case GameManager.Orientation.DiagonalB:
-                Debug.Log("DiagonalB");
-                eularZ = -45f;
-                break;
+            case GameManager.Orientation.Horizontal:    eulerZ =   0f; break;
+            case GameManager.Orientation.Vertical:      eulerZ =  90f; break;
+            case GameManager.Orientation.DiagonalA:     eulerZ =  45f; break;
+            case GameManager.Orientation.DiagonalB:     eulerZ = -45f; break;
         }
-        Transform completeLineTransform =
-        Instantiate(completeLinePrefeb, GetGridWorldPosition(e.line.centerGridPosition.x, e.line.centerGridPosition.y), Quaternion.Euler(0.0f, 0.0f, eularZ));
-        completeLineTransform.GetComponent<NetworkObject>().Spawn(true);
+        Transform lineCompleteTransform =
+            Instantiate(
+                lineCompletePrefab,
+                GetGridWorldPosition(e.line.centerGridPosition.x, e.line.centerGridPosition.y),
+                Quaternion.Euler(0, 0, eulerZ)
+            );
+        lineCompleteTransform.GetComponent<NetworkObject>().Spawn(true);
 
-        visualGameObjectList.Add(completeLineTransform.gameObject);
-
+        visualGameObjectList.Add(lineCompleteTransform.gameObject);
     }
 
-    private void GameManager_OnClickedOnGridPosition(object sender, GameManager.OnClickedOnGridPositionEventArgs e)
-    {
-        Debug.Log("ClickedOnGridPosition" + e.x + ", " + e.y);
+    private void GameManager_OnClickedOnGridPosition(object sender, GameManager.OnClickedOnGridPositionEventArgs e) {
+        Debug.Log("GameManager_OnClickedOnGridPosition");
         SpawnObjectRpc(e.x, e.y, e.playerType);
     }
 
     [Rpc(SendTo.Server)]
-    private void SpawnObjectRpc(int x, int y, GameManager.PlayerType playerType)
-    {
+    private void SpawnObjectRpc(int x, int y, GameManager.PlayerType playerType) {
         Debug.Log("SpawnObject");
         Transform prefab;
-        switch (playerType)
-        {
+        switch (playerType) {
             default:
             case GameManager.PlayerType.Cross:
                 prefab = crossPrefab;
@@ -97,15 +79,14 @@ public class GameVisualManager : NetworkBehaviour
                 prefab = circlePrefab;
                 break;
         }
-        Transform spawnedCircleTransform = Instantiate(prefab, GetGridWorldPosition(x, y), Quaternion.identity);
-        spawnedCircleTransform.GetComponent<NetworkObject>().Spawn(true);
-        //spawnedCircleTransform.position = GetGridWorldPosition(x, y);
+        Transform spawnedCrossTransform = Instantiate(prefab, GetGridWorldPosition(x, y), Quaternion.identity);
+        spawnedCrossTransform.GetComponent<NetworkObject>().Spawn(true);
 
-        visualGameObjectList.Add(spawnedCircleTransform.gameObject);
+        visualGameObjectList.Add(spawnedCrossTransform.gameObject);
     }
 
-    private Vector2 GetGridWorldPosition(int x, int y)
-    {
+    private Vector2 GetGridWorldPosition(int x, int y) {
         return new Vector2(-GRID_SIZE + x * GRID_SIZE, -GRID_SIZE + y * GRID_SIZE);
     }
+
 }
