@@ -79,9 +79,9 @@ Assets/
 
 ## 👨‍💻 Author
 
-**Safeer Ahmed Rana**  
+**Safeer Ahmad Rana**  
 📧 safeerrana54@gmail.com  
-🌐 [Portfolio or LinkedIn link]
+🌐 https://www.linkedin.com/in/safeer-ahmed-rana/
 
 ---
 
